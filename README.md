@@ -1,4 +1,8 @@
-# Getting Started with Create React App
+# face recognition brain
+
+A face detecting web app made with React and Clarifai
+This uses the face-recognition-brain-api server
+https://github.com/calabaza91/face-recognition-brain-api
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

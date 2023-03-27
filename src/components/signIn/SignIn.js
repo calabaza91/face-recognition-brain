@@ -20,20 +20,23 @@ class SignIn extends Component {
 
     onSubmitSignIn = () => {
         fetch('http://localhost:3000/signin', {
-            method: 'post',
-            headers: {'Content-Text': 'application/json'},
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 email: this.state.signInEmail,
                 password: this.state.signInPassword
             })
         })
         .then(response => response.json())
-        .then(data => {
-            if (data === 'success'){
+        .then(user => {
+            if (user.id){
+                this.props.loadUser(user)
                 this.props.onRouteChange('home')
             }
         })
-        
     }
 
     render() {
@@ -70,7 +73,7 @@ class SignIn extends Component {
                         <input 
                             onClick = {this.onSubmitSignIn}
                             className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" 
-                            type="submit" 
+                            type="button" 
                             value="Sign in"
                             />
                         </div>

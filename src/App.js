@@ -17,7 +17,14 @@ class App extends Component {
         imageUrl: '',
         box: {},
         route: 'signIn',
-        isSignedIn: false
+        isSignedIn: false,
+        user: {
+          id: '',
+          name: '',
+          email: '',
+          entries: 0,
+          joined: '',
+        }
     }
   }
 
@@ -26,6 +33,16 @@ class App extends Component {
   //     .then(response => response.json())
   //     .then(console.log)
   // }
+
+  loadUser = (data) => {
+    this.setState({user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        joined: data.joined,
+      }})
+  }
 
   calculateFaceLocation = (data) => {
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -50,7 +67,7 @@ class App extends Component {
 
 
   // const PAT = 'ca7a69586c4e4bdabaf06489908b680e';
-  onButtonSubmit = () => {
+  onImageSubmit = () => {
     this.setState({imageUrl: this.state.input})
     const photo = this.state.input;
 
@@ -89,9 +106,28 @@ class App extends Component {
     //to specify version: MODEL_ID + "/versions/" + MODEL_VERSION_ID 
 
     fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", requestOptions)
-        .then(response => response.json())
-        .then(result => this.displayFaceBox(this.calculateFaceLocation(result)))    
-        .catch(error => console.log('error', error));
+      .then(response => response.json())
+      .then(response => {
+        console.log(response)
+        if(response){
+          fetch('http://localhost:3000/image', {
+            method: 'PUT',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id: this.state.user.id
+            })
+          })
+          .then(response => response.json())
+          .then(count => {
+            this.setState(Object.assign(this.state.user, { entries: count}))
+          })
+        }
+        this.displayFaceBox(this.calculateFaceLocation(response))
+      })
+      .catch(error => console.log('error', error));
   }
 
   onRouteChange = (route) => {
@@ -105,7 +141,7 @@ class App extends Component {
   }
 
   render(){
-    const {isSignedIn, imageUrl, route, box} = this.state;
+    const {isSignedIn, imageUrl, route, box, user} = this.state;
     return (
       <div className="App">
         <ParticlesBg
@@ -121,10 +157,13 @@ class App extends Component {
         { route === 'home'
           ? <div>
             <Logo />
-            <Rank />
+            <Rank 
+              name={user.name}
+              entries={user.entries}
+            />
             <ImageLinkForm
               onInputChange = {this.onInputChange}
-              onButtonSubmit = {this.onButtonSubmit}
+              onImageSubmit = {this.onImageSubmit}
             />
             <FaceRecognition 
               box={box}
@@ -134,9 +173,11 @@ class App extends Component {
           : (
             route === 'signIn'
             ?<SignIn 
+              loadUser = {this.loadUser}
               onRouteChange = {this.onRouteChange}
             />
             : <Register
+              loadUser = {this.loadUser}
               onRouteChange={this.onRouteChange}
             />
             )

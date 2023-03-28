@@ -5,10 +5,14 @@ class Register extends Component {
     constructor(props){
         super(props)
         this.state = {
+            name: '',
             email: '',
-            password: '',
-            name: ''
+            password: ''
         }
+    }
+
+    onNameChange = (event) => {
+        this.setState({name: event.target.value})
     }
 
     onEmailChange = (event) => {
@@ -19,17 +23,10 @@ class Register extends Component {
         this.setState({password: event.target.value})
     }
 
-    onNameChange = (event) => {
-        this.setState({name: event.target.value})
-    }
-
     onSubmitSignIn = () => {
         fetch('http://localhost:3000/register', {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 email: this.state.email,
                 password: this.state.password,
